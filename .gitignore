@@ -3,3 +3,13 @@ node_modules
 .env
 
 eas.json
+
+# Build directories
+build/
+dist/
+.expo/
+web-build/
+
+ios/
+
+android/
