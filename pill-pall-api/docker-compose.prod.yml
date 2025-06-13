@@ -1,0 +1,59 @@
+services:
+  pill-pall-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: pill-pall-api-prod
+    ports:
+      - "${PORT:-3001}:${PORT:-3001}"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3001}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://pillpall.app}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-pill_pall_prod}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_MAX_CONNECTIONS=${DB_MAX_CONNECTIONS:-20}
+      - DB_IDLE_TIMEOUT=${DB_IDLE_TIMEOUT:-30000}
+      - DB_CONNECTION_TIMEOUT=${DB_CONNECTION_TIMEOUT:-2000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - pill-pall-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-3001}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: pill-pall-postgres-prod
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-pill_pall_prod}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5433}:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pill_pall_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pill-pall-network
+
+volumes:
+  postgres_prod_data:
+
+networks:
+  pill-pall-network:
+    driver: bridge 

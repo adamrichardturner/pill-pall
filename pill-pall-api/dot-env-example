@@ -1,0 +1,36 @@
+# Copy this file to the project root as '.env' and update the passwords
+
+# Application Configuration
+NODE_ENV=development
+PORT=3001
+CORS_ORIGIN=*
+
+# Database Configuration (for application)
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=pill_pall_dev
+DB_USER=postgres
+DB_PASSWORD=pill_pall_secure_dev_password_123
+DB_MAX_CONNECTIONS=10
+DB_IDLE_TIMEOUT=30000
+DB_CONNECTION_TIMEOUT=2000
+
+# PostgreSQL Container Configuration (for Docker)
+POSTGRES_DB=pill_pall_dev
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=pill_pall_secure_dev_password_123
+
+# Production External Port (to avoid conflicts)
+POSTGRES_EXTERNAL_PORT=5433
+
+# =====================================================
+# PRODUCTION CONFIGURATION
+# Uncomment and update these for production deployment
+# =====================================================
+# NODE_ENV=production
+# CORS_ORIGIN=https://pillpall.app
+# DB_NAME=pill_pall_prod
+# DB_PASSWORD=your_super_secure_production_password_456
+# POSTGRES_DB=pill_pall_prod
+# POSTGRES_PASSWORD=your_super_secure_production_password_456
+# DB_MAX_CONNECTIONS=20 

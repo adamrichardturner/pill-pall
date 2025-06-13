@@ -1,0 +1,57 @@
+services:
+  pill-pall-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pill-pall-api-dev
+    ports:
+      - "${PORT:-3001}:${PORT:-3001}"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=${PORT:-3001}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-pill_pall_dev}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_MAX_CONNECTIONS=${DB_MAX_CONNECTIONS:-10}
+      - DB_IDLE_TIMEOUT=${DB_IDLE_TIMEOUT:-30000}
+      - DB_CONNECTION_TIMEOUT=${DB_CONNECTION_TIMEOUT:-2000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - pill-pall-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: pill-pall-postgres-dev
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-pill_pall_dev}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pill_pall_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pill-pall-network
+
+volumes:
+  postgres_data:
+
+networks:
+  pill-pall-network:
+    driver: bridge 
